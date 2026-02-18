@@ -1,14 +1,26 @@
-# PYC2 - Professional Command & Control Framework
+# C 2 P Y
+
+**Python based C2** 
 
 ![Version](https://img.shields.io/badge/version-1.0-blue)
 ![Python](https://img.shields.io/badge/python-3.8+-green)
 ![License](https://img.shields.io/badge/license-Educational-red)
+
+![userinterface.png](userinterface.png)
+
+![LOLBAs](image.png)
 
 ## 🎯 Overview
 
 PYC2 is a professional-grade Command & Control (C2) framework designed for Red Team engagements and penetration testing. Built with Python and PyQt6, it provides a modern, feature-rich interface for managing compromised systems.
 
 ### ⚡ Key Features
+
+**Generate Encrypted Reverse Shells**: Create powerful payloads and reverse shells with built-in XOR encryption for secure communication.
+
+![Reverse Shell Generator](revgen_screenshot.png)
+
+![Exploit Generator](exploitgen.png)
 
 - **🔐 Encrypted Communication**: XOR encryption for secure agent communication
 - **🎨 Modern GUI**: Professional dark-themed interface with real-time updates

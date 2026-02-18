@@ -1,0 +1,54 @@
+{
+  "1": [
+    {
+      "timestamp": "2026-02-18 03:34:45",
+      "command": "hostname",
+      "type": "shell"
+    },
+    {
+      "timestamp": "2026-02-18 03:34:48",
+      "command": "whoami",
+      "type": "shell"
+    },
+    {
+      "timestamp": "2026-02-18 03:34:55",
+      "command": "ps aux",
+      "type": "shell"
+    },
+    {
+      "timestamp": "2026-02-18 03:35:05",
+      "command": "tree",
+      "type": "shell"
+    },
+    {
+      "timestamp": "2026-02-18 03:35:21",
+      "command": "cd /",
+      "type": "shell"
+    },
+    {
+      "timestamp": "2026-02-18 03:35:23",
+      "command": "ls",
+      "type": "shell"
+    },
+    {
+      "timestamp": "2026-02-18 03:35:29",
+      "command": "hostname",
+      "type": "shell"
+    },
+    {
+      "timestamp": "2026-02-18 03:35:31",
+      "command": "pwd",
+      "type": "shell"
+    },
+    {
+      "timestamp": "2026-02-18 03:35:39",
+      "command": "systeminfo",
+      "type": "shell"
+    },
+    {
+      "timestamp": "2026-02-18 03:35:43",
+      "command": "tasklist",
+      "type": "shell"
+    }
+  ]
+}
