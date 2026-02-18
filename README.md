@@ -6,9 +6,9 @@
 ![Python](https://img.shields.io/badge/python-3.8+-green)
 ![License](https://img.shields.io/badge/license-Educational-red)
 
-![userinterface.png](userinterface.png)
+![userinterface.png](screenshots/userinterface.png)
 
-![LOLBAs](image.png)
+![LOLBAs](screenshots/lolbas.png)
 
 ## 🎯 Overview
 
@@ -18,9 +18,9 @@ PYC2 is a professional-grade Command & Control (C2) framework designed for Red T
 
 **Generate Encrypted Reverse Shells**: Create powerful payloads and reverse shells with built-in XOR encryption for secure communication.
 
-![Reverse Shell Generator](revgen_screenshot.png)
+![Reverse Shell Generator](screenshots/revgen_screenshot.png)
 
-![Exploit Generator](exploitgen.png)
+![Exploit Generator](screenshots/exploitgen.png)
 
 - **🔐 Encrypted Communication**: XOR encryption for secure agent communication
 - **🎨 Modern GUI**: Professional dark-themed interface with real-time updates
