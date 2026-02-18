@@ -28,6 +28,12 @@ class PayloadCoordinator:
         self.current_lhost = None
         self.current_lport = None
         self.current_http_port = None
+        # Ensure top-level lolbas directory exists and deduplicate nested copies
+        try:
+            self.lolbas_dir.mkdir(exist_ok=True)
+            self._deduplicate_lolbas_dirs()
+        except Exception:
+            pass
     
     def get_local_ip(self) -> str:
         """Get the local IP address"""
@@ -311,6 +317,62 @@ $client.Close()'''
             'xml': str(self.lolbas_dir / 'payload.xml'),
             'ps1': str(self.lolbas_dir / 'payload.ps1'),
         }
+
+    def _deduplicate_lolbas_dirs(self):
+        """
+        Find nested `lolbas_templates` directories and consolidate files into the top-level
+        `self.lolbas_dir`. This fixes accidental recursive copies where templates were
+        created inside nested folders of the same name.
+        """
+        try:
+            root = self.lolbas_dir.resolve()
+        except Exception:
+            return
+
+        # Walk tree and find directories named like the root (but not the root itself)
+        for dirpath, dirnames, filenames in os.walk(root):
+            # Skip the root directory itself
+            cur = Path(dirpath).resolve()
+            if cur == root:
+                continue
+
+            if cur.name == root.name:
+                # Move all files up to root
+                for f in filenames:
+                    src = cur / f
+                    dest = root / f
+                    try:
+                        if dest.exists():
+                            # If files differ, create a unique name to avoid overwrite
+                            if src.read_bytes() != dest.read_bytes():
+                                dest = root / (f + '.dup')
+                                src.replace(dest)
+                            else:
+                                # identical file, remove duplicate
+                                src.unlink()
+                        else:
+                            src.replace(dest)
+                    except Exception:
+                        # fallback to copy if replace fails
+                        try:
+                            data = src.read_bytes()
+                            dest.write_bytes(data)
+                            src.unlink()
+                        except Exception:
+                            continue
+
+                # Attempt to remove the now-empty nested directory (and parents if they are nested copies)
+                try:
+                    # remove empty dirs upwards until we hit root or a non-empty dir
+                    p = cur
+                    while p != root and p.exists():
+                        try:
+                            p.rmdir()
+                        except OSError:
+                            break
+                        p = p.parent
+                except Exception:
+                    pass
     
     def start_http_server(self, port: int = 8080) -> bool:
         """
