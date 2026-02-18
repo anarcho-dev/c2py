@@ -325,27 +325,55 @@ $client.Close()'''
         if self.http_server_thread and self.http_server_thread.is_alive():
             print(f"[!] HTTP server already running on port {self.current_http_port}")
             return False
-        
+
+        # Create a server class that allows address reuse
+        class _ReusableTCPServer(socketserver.TCPServer):
+            allow_reuse_address = True
+
+        # Use handler that serves from the lolbas_dir without changing CWD
         try:
-            # Change to LOLBAS directory
-            os.chdir(self.lolbas_dir)
-            
-            # Create server
+            from functools import partial
+            handler = partial(http.server.SimpleHTTPRequestHandler, directory=str(self.lolbas_dir))
+        except Exception:
             handler = http.server.SimpleHTTPRequestHandler
-            self.http_server = socketserver.TCPServer(("0.0.0.0", port), handler)
-            self.current_http_port = port
-            
+
+        # Try to bind to requested port; on EADDRINUSE try next ports up to +10
+        max_tries = 10
+        attempt = 0
+        bound = False
+        last_exc = None
+
+        while attempt < max_tries and not bound:
+            try_port = port + attempt
+            try:
+                self.http_server = _ReusableTCPServer(("0.0.0.0", try_port), handler)
+                self.current_http_port = try_port
+                bound = True
+            except OSError as e:
+                last_exc = e
+                # Address already in use: try next port
+                if getattr(e, 'errno', None) in (98,):
+                    attempt += 1
+                    continue
+                else:
+                    print(f"[!] Failed to start HTTP server on {try_port}: {e}")
+                    return False
+
+        if not bound:
+            print(f"[!] Failed to bind HTTP server after {max_tries} attempts: {last_exc}")
+            return False
+
+        try:
             # Start in thread
             self.http_server_thread = threading.Thread(
                 target=self.http_server.serve_forever,
                 daemon=True
             )
             self.http_server_thread.start()
-            
-            print(f"[+] HTTP server started on port {port}")
+
+            print(f"[+] HTTP server started on port {self.current_http_port}")
             print(f"[+] Serving files from: {self.lolbas_dir.absolute()}")
             return True
-            
         except Exception as e:
             print(f"[!] Failed to start HTTP server: {e}")
             return False
