@@ -1842,12 +1842,22 @@ class EnhancedC2Server:
         try:
             self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-            self.server_socket.bind((self.host, self.port))
+            try:
+                self.server_socket.bind((self.host, self.port))
+            except OSError as bind_err:
+                # Commonly EADDRINUSE
+                err_no = getattr(bind_err, 'errno', None)
+                if err_no == 98 or 'Address already' in str(bind_err):
+                    self.log(f"[!] Failed to bind to {self.host}:{self.port} - address in use")
+                else:
+                    self.log(f"[!] Failed to bind to {self.host}:{self.port}: {bind_err}")
+                raise
+
             self.server_socket.listen(5)
             self.running = True
-            
+
             self.log(f"Enhanced C2 Server listening on {self.host}:{self.port}")
-            
+
             while self.running:
                 try:
                     client_socket, address = self.server_socket.accept()
@@ -1897,6 +1907,11 @@ class EnhancedC2Server:
         except Exception as e:
             self.log(f"Failed to start server: {e}")
         finally:
+            try:
+                # Ensure history is saved
+                self.save_command_history()
+            except Exception:
+                pass
             self.stop_server()
 
     def handle_client(self, client_id, client_socket):
@@ -2174,23 +2189,52 @@ class EnhancedC2Server:
 
     def stop_server(self):
         self.running = False
-        
+
         # Close all client connections
         for client_id in list(self.clients.keys()):
             try:
-                self.clients[client_id]['socket'].close()
-            except:
-                pass
-        
+                sock = self.clients[client_id].get('socket')
+                if sock:
+                    try:
+                        sock.shutdown(socket.SHUT_RDWR)
+                    except Exception:
+                        pass
+                    try:
+                        sock.close()
+                    except Exception:
+                        pass
+            except Exception as e:
+                self.log(f"Error closing client {client_id} socket: {e}")
+
+        # Clear client list
+        self.clients.clear()
+
         # Close server socket
         if self.server_socket:
             try:
+                try:
+                    self.server_socket.shutdown(socket.SHUT_RDWR)
+                except Exception:
+                    pass
                 self.server_socket.close()
-            except:
-                pass
-        
+            except Exception as e:
+                self.log(f"Error closing server socket: {e}")
+            finally:
+                self.server_socket = None
+
+        # Save history
+        try:
+            self.save_command_history()
+        except Exception as e:
+            self.log(f"Error saving command history on stop: {e}")
+
+        # Emit log via signal if available
+        self.log("[*] Enhanced C2 Server stopped")
         if self.log_signal:
-            self.log_signal.emit("[*] Enhanced C2 Server stopped")
+            try:
+                self.log_signal.emit("[*] Enhanced C2 Server stopped")
+            except Exception:
+                pass
 
 class ServerThread(QThread):
     """Worker thread to run the C2 server without blocking the GUI"""

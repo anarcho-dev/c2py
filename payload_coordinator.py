@@ -28,6 +28,12 @@ class PayloadCoordinator:
         self.current_lhost = None
         self.current_lport = None
         self.current_http_port = None
+        # Ensure top-level lolbas directory exists and deduplicate nested copies
+        try:
+            self.lolbas_dir.mkdir(exist_ok=True)
+            self._deduplicate_lolbas_dirs()
+        except Exception:
+            pass
     
     def get_local_ip(self) -> str:
         """Get the local IP address"""
@@ -311,6 +317,62 @@ $client.Close()'''
             'xml': str(self.lolbas_dir / 'payload.xml'),
             'ps1': str(self.lolbas_dir / 'payload.ps1'),
         }
+
+    def _deduplicate_lolbas_dirs(self):
+        """
+        Find nested `lolbas_templates` directories and consolidate files into the top-level
+        `self.lolbas_dir`. This fixes accidental recursive copies where templates were
+        created inside nested folders of the same name.
+        """
+        try:
+            root = self.lolbas_dir.resolve()
+        except Exception:
+            return
+
+        # Walk tree and find directories named like the root (but not the root itself)
+        for dirpath, dirnames, filenames in os.walk(root):
+            # Skip the root directory itself
+            cur = Path(dirpath).resolve()
+            if cur == root:
+                continue
+
+            if cur.name == root.name:
+                # Move all files up to root
+                for f in filenames:
+                    src = cur / f
+                    dest = root / f
+                    try:
+                        if dest.exists():
+                            # If files differ, create a unique name to avoid overwrite
+                            if src.read_bytes() != dest.read_bytes():
+                                dest = root / (f + '.dup')
+                                src.replace(dest)
+                            else:
+                                # identical file, remove duplicate
+                                src.unlink()
+                        else:
+                            src.replace(dest)
+                    except Exception:
+                        # fallback to copy if replace fails
+                        try:
+                            data = src.read_bytes()
+                            dest.write_bytes(data)
+                            src.unlink()
+                        except Exception:
+                            continue
+
+                # Attempt to remove the now-empty nested directory (and parents if they are nested copies)
+                try:
+                    # remove empty dirs upwards until we hit root or a non-empty dir
+                    p = cur
+                    while p != root and p.exists():
+                        try:
+                            p.rmdir()
+                        except OSError:
+                            break
+                        p = p.parent
+                except Exception:
+                    pass
     
     def start_http_server(self, port: int = 8080) -> bool:
         """
@@ -325,27 +387,55 @@ $client.Close()'''
         if self.http_server_thread and self.http_server_thread.is_alive():
             print(f"[!] HTTP server already running on port {self.current_http_port}")
             return False
-        
+
+        # Create a server class that allows address reuse
+        class _ReusableTCPServer(socketserver.TCPServer):
+            allow_reuse_address = True
+
+        # Use handler that serves from the lolbas_dir without changing CWD
         try:
-            # Change to LOLBAS directory
-            os.chdir(self.lolbas_dir)
-            
-            # Create server
+            from functools import partial
+            handler = partial(http.server.SimpleHTTPRequestHandler, directory=str(self.lolbas_dir))
+        except Exception:
             handler = http.server.SimpleHTTPRequestHandler
-            self.http_server = socketserver.TCPServer(("0.0.0.0", port), handler)
-            self.current_http_port = port
-            
+
+        # Try to bind to requested port; on EADDRINUSE try next ports up to +10
+        max_tries = 10
+        attempt = 0
+        bound = False
+        last_exc = None
+
+        while attempt < max_tries and not bound:
+            try_port = port + attempt
+            try:
+                self.http_server = _ReusableTCPServer(("0.0.0.0", try_port), handler)
+                self.current_http_port = try_port
+                bound = True
+            except OSError as e:
+                last_exc = e
+                # Address already in use: try next port
+                if getattr(e, 'errno', None) in (98,):
+                    attempt += 1
+                    continue
+                else:
+                    print(f"[!] Failed to start HTTP server on {try_port}: {e}")
+                    return False
+
+        if not bound:
+            print(f"[!] Failed to bind HTTP server after {max_tries} attempts: {last_exc}")
+            return False
+
+        try:
             # Start in thread
             self.http_server_thread = threading.Thread(
                 target=self.http_server.serve_forever,
                 daemon=True
             )
             self.http_server_thread.start()
-            
-            print(f"[+] HTTP server started on port {port}")
+
+            print(f"[+] HTTP server started on port {self.current_http_port}")
             print(f"[+] Serving files from: {self.lolbas_dir.absolute()}")
             return True
-            
         except Exception as e:
             print(f"[!] Failed to start HTTP server: {e}")
             return False
