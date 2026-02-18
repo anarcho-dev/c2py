@@ -8,11 +8,10 @@ import os
 import socket
 import subprocess
 import threading
-import time
 import http.server
 import socketserver
 from pathlib import Path
-from typing import Dict, Tuple, Optional
+from typing import Dict, Tuple
 
 
 class PayloadCoordinator:
@@ -38,7 +37,7 @@ class PayloadCoordinator:
             local_ip = s.getsockname()[0]
             s.close()
             return local_ip
-        except:
+        except Exception:
             return "127.0.0.1"
     
     def detect_target_os(self, target_ip: str) -> Tuple[str, str]:
@@ -75,7 +74,7 @@ class PayloadCoordinator:
                     return ('Network Device', 'Medium')
             
             return ('Unknown', 'Low')
-        except:
+        except Exception:
             return ('Unknown', 'Low')
     
     def suggest_payload(self, target_os: str, use_lolbas: bool = False) -> Tuple[str, str]:
