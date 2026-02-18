@@ -9,6 +9,33 @@ from PyQt6.QtCore import Qt, QSize
 from pathlib import Path
 
 
+COLOR_SCHEMES = {
+    'primary': {
+        'bg': '#007acc',
+        'fg': '#ffffff',
+    },
+    'success': {
+        'bg': '#16825d',
+        'fg': '#ffffff',
+    },
+    'error': {
+        'bg': '#f85149',
+        'fg': '#ffffff',
+    },
+    'warning': {
+        'bg': '#ffa500',
+        'fg': '#000000',
+    },
+    'info': {
+        'bg': '#00bfff',
+        'fg': '#ffffff',
+    },
+    'dark': {
+        'bg': '#2d2d2d',
+        'fg': '#ffffff',
+    },
+}
+
 class IconSystem:
     """
     Centralized icon management system
@@ -18,6 +45,7 @@ class IconSystem:
         self.icon_dir = Path(icon_dir)
         self.cache = {}
         self.icon_dir.mkdir(exist_ok=True)
+        self.COLORS = {k: v['bg'] for k, v in COLOR_SCHEMES.items()}
     
     def get_icon(self, name, default_emoji=""):
         """
@@ -219,35 +247,6 @@ def get_icon_by_name(name):
     """
     emoji = ICON_MAPPINGS.get(name, '●')
     return get_icon(name, emoji)
-
-
-# Color schemes for different icon types
-COLOR_SCHEMES = {
-    'primary': {
-        'bg': '#007acc',
-        'fg': '#ffffff',
-    },
-    'success': {
-        'bg': '#00ff41',
-        'fg': '#000000',
-    },
-    'error': {
-        'bg': '#ff4444',
-        'fg': '#ffffff',
-    },
-    'warning': {
-        'bg': '#ffa500',
-        'fg': '#000000',
-    },
-    'info': {
-        'bg': '#00bfff',
-        'fg': '#ffffff',
-    },
-    'dark': {
-        'bg': '#2d2d2d',
-        'fg': '#ffffff',
-    },
-}
 
 
 def create_colored_icon(text, color_scheme='primary', size=64):
