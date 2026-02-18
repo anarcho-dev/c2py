@@ -25,7 +25,8 @@ PYC2 is a professional-grade Command & Control (C2) framework designed for Red T
 - **🔐 Encrypted Communication**: XOR encryption for secure agent communication
 - **🎨 Modern GUI**: Professional dark-themed interface with real-time updates
 - **🛡️ AV Evasion**: Multiple techniques including LOLBAS, obfuscation, and compiled agents
-- **📊 Agent Management**: Detailed agent information, command history, and stability analysis
+- **� Polymorphic Obfuscation**: NEW! Generate unique, undetectable agents every time
+- **�📊 Agent Management**: Detailed agent information, command history, and stability analysis
 - **💣 Payload Generation**: Elite reverse shell generator with multiple categories and encoders
 - **🔥 LOLBAS Support**: Living Off The Land techniques using legitimate Windows binaries
 - **📸 Advanced Features**: Screenshot capture, file upload, and system enumeration
@@ -144,6 +145,10 @@ Once connected, you'll see the agent in the client table. Select it and use the 
 - **AMSI Bypass**: PowerShell agents include AMSI bypass techniques
 - **Anti-Sandbox**: Optional anti-sandbox checks in compiled agents
 - **Obfuscation**: Random variable names and code obfuscation
+- **Polymorphic Generation**: NEW! Each payload is structurally unique
+- **Multi-Layer Encryption**: Multiple encryption algorithms (XOR, Rotation, Substitution)
+- **Dead Code Injection**: Confuses static analysis tools
+- **Anti-Debugging**: C# agents detect debuggers and sandboxes
 
 ### 📊 Monitoring
 
@@ -203,6 +208,45 @@ Once connected, you'll see the agent in the client table. Select it and use the 
 - **URL**: URL-safe encoding
 - **Hex**: Hexadecimal encoding
 - **PowerShell Base64**: Encoded PowerShell execution
+- **Polymorphic Python**: 🆕 Advanced polymorphic obfuscation for Python
+- **Polymorphic PowerShell**: 🆕 Advanced polymorphic obfuscation for PowerShell
+- **Polymorphic C#**: 🆕 Advanced polymorphic obfuscation for C#
+
+### 🔄 Polymorphic Obfuscation (NEW!)
+
+**c2py** now includes an advanced polymorphic obfuscation engine that generates completely unique agents on every execution. Every generated payload has different code structure while maintaining the same functionality.
+
+**Key Features**:
+- 🎲 **Unique Every Time**: Each generation produces different code
+- 🔐 **Multi-Layer Encryption**: XOR, Multi-Pass XOR, Rotation, Substitution
+- 🎭 **Variable Randomization**: Unique names for every function and variable
+- 💀 **Dead Code Injection**: Confuse static analysis
+- 🛡️ **AMSI Bypass Variants**: 3 different PowerShell AMSI bypass methods
+- 🔬 **Anti-Debugging**: C# agents include sandbox detection
+- 🌐 **Multi-Language Support**: Python, PowerShell, C#, Bash
+
+**Obfuscation Levels**:
+- `low` - Basic randomization
+- `medium` - Enhanced obfuscation
+- `high` - Full polymorphic transformation (default)
+- `extreme` - Maximum obfuscation with all techniques
+
+**Usage in GUI**:
+1. Open Payload Generator
+2. Select encoder: "Polymorphic Python/PowerShell/C#"
+3. Generate payload
+4. Each generation is unique!
+
+**Programmatic Usage**:
+```python
+from polymorphic_obfuscator import PolymorphicObfuscator
+
+obfuscator = PolymorphicObfuscator(obfuscation_level='high')
+agent = obfuscator.obfuscate_python("", "192.168.1.100", 4444)
+print(agent['code'])
+```
+
+**See**: [POLYMORPHIC_OBFUSCATION.md](POLYMORPHIC_OBFUSCATION.md) for complete documentation.
 
 ### Listener Types
 

