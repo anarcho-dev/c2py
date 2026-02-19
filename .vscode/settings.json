@@ -1,0 +1,14 @@
+{
+    "python.testing.pytestArgs": [
+        "test_agents"
+    ],
+    "python.testing.unittestEnabled": true,
+    "python.testing.pytestEnabled": false,
+    "python.testing.unittestArgs": [
+        "-v",
+        "-s",
+        "./lolbas_templates",
+        "-p",
+        "*test.py"
+    ]
+}

