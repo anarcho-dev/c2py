@@ -1,0 +1,16 @@
+import pytest
+from tests.fixtures.c2_fixtures import *
+from tests.fixtures.polymorphic_fixtures import *
+from tests.fixtures.agent_fixtures import *
+
+@pytest.fixture(scope='session', autouse=True)
+def global_setup():
+    # Setup code for global fixtures
+    yield
+    # Teardown code for global fixtures
+
+@pytest.fixture
+def example_fixture():
+    # Setup code for example fixture
+    yield
+    # Teardown code for example fixture
